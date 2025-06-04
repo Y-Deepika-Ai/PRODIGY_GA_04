@@ -1,0 +1,18 @@
+!pip install diffusers transformers accelerate safetensors
+from google.colab import files
+from PIL import Image
+from IPython.display import display
+uploaded = files.upload()
+image_path = list(uploaded.keys())[0]
+image = Image.open(image_path).convert("RGB").resize((512, 512))
+display(image)  # display() is better than image.show() in Colab
+from diffusers import StableDiffusionImg2ImgPipeline
+import torch
+model_id = "runwayml/stable-diffusion-v1-5"
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+pipe = StableDiffusionImg2ImgPipeline.from_pretrained(model_id, torch_dtype=torch.float16)
+pipe.to(device)
+image = Image.open("download (2).jpg").convert("RGB")  # Load your B&W image
+prompt = "make it colorful, add vibrant and realistic colors to the image"
+output = pipe(prompt=prompt, image=image, num_inference_steps=50, image_guidance_scale=1.5).images[0]
+display(output)
